@@ -1,0 +1,83 @@
+name: Release
+
+# Push a tag to cut a release:
+#     git tag v1.0.0 && git push origin v1.0.0
+#
+# This builds a fresh DMG on a clean macOS runner, generates the Aurora demo
+# wallpaper, and publishes both as release assets.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g. v1.0.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & publish
+    runs-on: macos-15
+    timeout-minutes: 35
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and package
+        run: bash Scripts/build.sh
+
+      - name: Generate demo wallpaper
+        run: |
+          brew install ffmpeg || true
+          python3 -m pip install --quiet --break-system-packages numpy || python3 -m pip install --quiet numpy
+          python3 Scripts/make-sample-wallpaper.py "dist/Aurora 4K Sample.mp4"
+
+      - name: Collect release notes
+        id: notes
+        run: |
+          VERSION="${{ github.event.inputs.tag || github.ref_name }}"
+          DMG="$(ls dist/*.dmg | head -1)"
+          SHA="$(shasum -a 256 "$DMG" | cut -d' ' -f1)"
+          {
+            echo "notes<<EOF"
+            echo "### Install"
+            echo
+            echo "1. Download \`$(basename "$DMG")\` below"
+            echo "2. Open it and drag **LiveWall** into Applications"
+            echo "3. **Right-click LiveWall → Open** the first time"
+            echo
+            echo "That third step matters: LiveWall is ad-hoc signed rather than notarized,"
+            echo "so Gatekeeper blocks a normal double-click on first launch. Right-click → Open"
+            echo "gives you an \"Open anyway\" button. You only do this once."
+            echo
+            echo "Prefer the terminal? \`xattr -dr com.apple.quarantine /Applications/LiveWall.app\`"
+            echo
+            echo "### Try it"
+            echo
+            echo "\`Aurora 4K Sample.mp4\` is attached — a seamlessly looping 3840×2160 clip."
+            echo "Drop it on the Library window to see the app work immediately."
+            echo
+            echo "### Checksum"
+            echo
+            echo "\`\`\`"
+            echo "$SHA  $(basename "$DMG")"
+            echo "\`\`\`"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          name: LiveWall ${{ github.event.inputs.tag || github.ref_name }}
+          body: ${{ steps.notes.outputs.notes }}
+          draft: false
+          prerelease: false
+          files: |
+            dist/*.dmg
+            dist/*.dmg.sha256
+            dist/Aurora 4K Sample.mp4

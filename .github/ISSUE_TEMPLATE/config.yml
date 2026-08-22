@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "Video won't play?"
+    url: https://github.com/roshworldwide/livewall#supported-video
+    about: LiveWall only decodes what macOS decodes — .mp4/.m4v/.mov with H.264, HEVC or ProRes. WebM, MKV and AV1 need converting first. The README has the ffmpeg commands.
+  - name: "macOS says the app is damaged or unverified"
+    url: https://github.com/roshworldwide/livewall#first-launch
+    about: Expected — LiveWall isn't notarized. Right-click → Open the first time.
+  - name: Questions & ideas
+    url: https://github.com/roshworldwide/livewall/discussions
+    about: For anything that isn't a concrete bug or feature request.

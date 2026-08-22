@@ -1,0 +1,73 @@
+name: Bug report
+description: Something isn't working
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file this. A few specifics make bugs
+        dramatically faster to fix — especially the video details, since most
+        playback issues come down to codec or container.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you get instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Add a video via …
+        2. Set it as wallpaper
+        3. …
+    validations:
+      required: true
+
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "e.g. 15.2 (Apple silicon)"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: LiveWall version
+      description: Settings → About, or the DMG filename
+      placeholder: "e.g. 1.0 (1)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: displays
+    attributes:
+      label: How many displays?
+      options: ["1", "2", "3 or more"]
+    validations:
+      required: true
+
+  - type: textarea
+    id: video
+    attributes:
+      label: Video details (for playback bugs)
+      description: |
+        Run this and paste the output:
+        `ffprobe -hide_banner -i "/path/to/your/video.mp4"`
+        Or just tell us the container, codec and resolution.
+      render: shell
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console output
+      description: |
+        Optional but very useful. In Console.app, filter by process `LiveWall`,
+        reproduce the bug, and paste anything that appears.
+      render: shell

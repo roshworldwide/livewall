@@ -1,0 +1,41 @@
+name: Feature request
+description: Suggest something LiveWall should do
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's the problem?
+      description: Describe the situation you're in, not the solution you have in mind.
+      placeholder: "When I'm on battery, LiveWall keeps decoding and I lose an hour of runtime…"
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: What would you like it to do?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which area?
+      options:
+        - Playback / rendering
+        - Library & import
+        - Multi-display
+        - Menu bar / UI
+        - Performance & battery
+        - Something else
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checked
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and the README's "Adding more" section
+          required: true

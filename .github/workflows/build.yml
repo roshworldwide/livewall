@@ -1,0 +1,49 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md', 'docs/**', 'LICENSE']
+  pull_request:
+    paths-ignore: ['**.md', 'docs/**', 'LICENSE']
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & package
+    runs-on: macos-15
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          sw_vers
+          xcodebuild -version
+          swift --version
+
+      - name: Build and package
+        run: bash Scripts/build.sh
+
+      - name: Sanity-check the bundle
+        run: |
+          APP="dist/LiveWall.app"
+          test -x "$APP/Contents/MacOS/LiveWall" || { echo "::error::executable missing"; exit 1; }
+          test -f "$APP/Contents/Resources/AppIcon.icns" || { echo "::error::app icon missing"; exit 1; }
+          /usr/libexec/PlistBuddy -c "Print :LSUIElement" "$APP/Contents/Info.plist"
+          codesign --verify --strict --verbose=2 "$APP"
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiveWall-dmg
+          path: |
+            dist/*.dmg
+            dist/*.dmg.sha256
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,54 @@
+# ── Build output ─────────────────────────────────────────────────────────────
+build/
+dist/
+DerivedData/
+*.dmg
+*.dmg.sha256
+build.log
+build-status.txt
+
+# ── Xcode ────────────────────────────────────────────────────────────────────
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.xcarchive
+*.playground
+timeline.xctimeline
+playground.xcworkspace
+
+# ── Swift Package Manager ────────────────────────────────────────────────────
+.swiftpm/
+.build/
+Package.resolved
+
+# ── Media (shipped as GitHub Release assets, not tracked in git) ─────────────
+*.mp4
+*.mov
+*.m4v
+
+# ── macOS ────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# ── Editors ──────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*~
+
+# ── Local-only helpers ───────────────────────────────────────────────────────
+Push to GitHub.command
+screenshot-*.jpg
+screenshot-*.png
