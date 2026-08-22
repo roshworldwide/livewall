@@ -30,10 +30,16 @@ jobs:
       - name: Build and package
         run: bash Scripts/build.sh
 
+      # Nice-to-have, not load-bearing: the DMG is the actual release artifact.
+      # A slow or flaky Homebrew mirror must never block shipping, so this step
+      # is allowed to fail and the upload below tolerates the missing file.
       - name: Generate demo wallpaper
+        continue-on-error: true
+        timeout-minutes: 12
         run: |
-          brew install ffmpeg || true
-          python3 -m pip install --quiet --break-system-packages numpy || python3 -m pip install --quiet numpy
+          brew list ffmpeg >/dev/null 2>&1 || brew install ffmpeg
+          python3 -m pip install --quiet --break-system-packages numpy \
+            || python3 -m pip install --quiet numpy
           python3 Scripts/make-sample-wallpaper.py "dist/Aurora 4K Sample.mp4"
 
       - name: Collect release notes
@@ -77,6 +83,7 @@ jobs:
           body: ${{ steps.notes.outputs.notes }}
           draft: false
           prerelease: false
+          fail_on_unmatched_files: false
           files: |
             dist/*.dmg
             dist/*.dmg.sha256
