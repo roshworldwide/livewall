@@ -1,8 +1,3 @@
-//
-//  MainWindowController.swift
-//  LiveWall
-//
-
 import AppKit
 import SwiftUI
 

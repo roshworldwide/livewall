@@ -1,18 +1,4 @@
 #!/usr/bin/env python3
-"""
-Generate the Aurora demo wallpaper — a seamlessly looping 4K H.264 clip.
-
-Every animated phase advances by an exact multiple of 2π over the clip, so the
-last frame lands back on the first and the loop point is invisible.
-
-The aurora is computed at 720p (it's a smooth field — there is no high-frequency
-detail to lose) and upscaled to 3840×2160 by ffmpeg, which is ~16× faster than
-computing at native 4K for an identical result. A touch of noise is added at
-full resolution to prevent banding in the gradients.
-
-Requirements:  python3, numpy, ffmpeg (with libx264)
-Usage:         python3 Scripts/make-sample-wallpaper.py [output.mp4]
-"""
 
 import subprocess
 import sys
@@ -31,8 +17,6 @@ yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
 xx /= W
 yy /= H
 
-# Fixed seed so the star field is identical on every frame — a re-rolled field
-# would shimmer like static instead of twinkling.
 rng = np.random.default_rng(7)
 stars = np.zeros((H, W), np.float32)
 for _ in range(520):
@@ -42,7 +26,6 @@ star_phase = rng.uniform(0, 2 * np.pi, size=(H, W)).astype(np.float32)
 
 
 def ribbon(y0, amp, freq, phase, width, colour, gain):
-    """One band of light following a sine centreline, fading in and out along x."""
     centre = y0 + amp * np.sin(xx * freq * np.pi + phase)
     band = np.exp(-((np.abs(yy - centre) / width) ** 2) * 2.2)
     envelope = np.clip(np.sin((xx * 0.92 + 0.04) * np.pi), 0, 1) ** 0.6
@@ -68,7 +51,7 @@ sky = np.array([6, 9, 34], np.float32) + (
 ) * yy[..., None]
 
 for frame in range(FRAMES):
-    a = 2 * np.pi * frame / FRAMES          # wraps exactly at the loop point
+    a = 2 * np.pi * frame / FRAMES
     c = sky.copy()
 
     c += ribbon(0.30 + 0.014 * np.sin(a),       0.10, 1.7, 0.4 + a,   0.115, (40, 225, 235), 1.00)
@@ -82,7 +65,7 @@ for frame in range(FRAMES):
     c += (stars * (0.62 + 0.38 * np.sin(a * 2 + star_phase)) * 210)[..., None]
 
     luma = c @ np.array([0.299, 0.587, 0.114], np.float32)
-    c = luma[..., None] + (c - luma[..., None]) * 1.20      # saturation lift
+    c = luma[..., None] + (c - luma[..., None]) * 1.20
 
     ffmpeg.stdin.write(np.clip(c, 0, 255).astype(np.uint8).tobytes())
 

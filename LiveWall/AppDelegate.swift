@@ -1,8 +1,3 @@
-//
-//  AppDelegate.swift
-//  LiveWall
-//
-
 import AppKit
 import SwiftUI
 
@@ -10,8 +5,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var menuBar: MenuBarController?
     private var mainWindowController: MainWindowController?
-
-    // MARK: - Lifecycle
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         LibraryPaths.ensureDirectories()
@@ -25,7 +18,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         controller.onQuit = { NSApp.terminate(nil) }
         menuBar = controller
 
-        // First run (or empty library): show the window so the app isn't invisible.
         if LibraryStore.shared.videos.isEmpty {
             showMainWindow()
         }
@@ -45,8 +37,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
 
-    // MARK: - Main window
-
     func showMainWindow() {
         if mainWindowController == nil {
             mainWindowController = MainWindowController()
@@ -61,13 +51,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         mainWindowController?.window?.makeKeyAndOrderFront(nil)
     }
 
-    // MARK: - Menus
-
-    /// Built programmatically because there is no MainMenu.xib in this project.
     private func buildMainMenu() {
         let mainMenu = NSMenu()
 
-        // App menu
         let appMenuItem = NSMenuItem()
         let appMenu = NSMenu()
         let appName = ProcessInfo.processInfo.processName
@@ -99,7 +85,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         appMenuItem.submenu = appMenu
         mainMenu.addItem(appMenuItem)
 
-        // File menu
         let fileMenuItem = NSMenuItem()
         let fileMenu = NSMenu(title: "File")
         let addItem = NSMenuItem(title: "Add Video…",
@@ -114,7 +99,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         fileMenuItem.submenu = fileMenu
         mainMenu.addItem(fileMenuItem)
 
-        // Edit menu (gives us cut/copy/paste in text fields for free)
         let editMenuItem = NSMenuItem()
         let editMenu = NSMenu(title: "Edit")
         editMenu.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
@@ -127,7 +111,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         editMenuItem.submenu = editMenu
         mainMenu.addItem(editMenuItem)
 
-        // Window menu
         let windowMenuItem = NSMenuItem()
         let windowMenu = NSMenu(title: "Window")
         windowMenu.addItem(withTitle: "Minimize",

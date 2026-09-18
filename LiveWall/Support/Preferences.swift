@@ -1,16 +1,6 @@
-//
-//  Preferences.swift
-//  LiveWall
-//
-//  Single source of truth for "what should be playing and how".
-//  The engine observes this object and reacts; the UI only ever writes here.
-//
-
 import Foundation
 import AVFoundation
 import Combine
-
-// MARK: - Fit mode
 
 enum FitMode: String, CaseIterable, Codable, Identifiable {
     case fill
@@ -45,11 +35,8 @@ enum FitMode: String, CaseIterable, Codable, Identifiable {
 }
 
 extension Notification.Name {
-    /// Posted whenever any preference changes. The engine listens for this.
     static let liveWallPreferencesChanged = Notification.Name("LiveWallPreferencesChanged")
 }
-
-// MARK: - Preferences
 
 final class Preferences: ObservableObject {
 
@@ -69,8 +56,6 @@ final class Preferences: ObservableObject {
 
     private let defaults = UserDefaults.standard
 
-    // MARK: Stored settings
-
     @Published var fitMode: FitMode {
         didSet { defaults.set(fitMode.rawValue, forKey: Key.fitMode); broadcast() }
     }
@@ -79,7 +64,6 @@ final class Preferences: ObservableObject {
         didSet { defaults.set(isMuted, forKey: Key.isMuted); broadcast() }
     }
 
-    /// 0.0 ... 1.0
     @Published var volume: Double {
         didSet {
             volume = min(max(volume, 0), 1)
@@ -92,12 +76,10 @@ final class Preferences: ObservableObject {
         didSet { defaults.set(isPlaying, forKey: Key.isPlaying); broadcast() }
     }
 
-    /// Pause decoding when the desktop is fully covered by other windows.
     @Published var pauseWhenHidden: Bool {
         didSet { defaults.set(pauseWhenHidden, forKey: Key.pauseWhenHidden); broadcast() }
     }
 
-    /// Copy imported files into the app's library folder instead of referencing them in place.
     @Published var copyIntoLibrary: Bool {
         didSet { defaults.set(copyIntoLibrary, forKey: Key.copyIntoLibrary) }
     }
@@ -106,17 +88,13 @@ final class Preferences: ObservableObject {
         didSet { defaults.set(sameOnAllDisplays, forKey: Key.sameOnAllDisplays); broadcast() }
     }
 
-    /// Used when `sameOnAllDisplays` is true.
     @Published var globalVideoID: String? {
         didSet { defaults.set(globalVideoID, forKey: Key.globalVideoID); broadcast() }
     }
 
-    /// displayKey -> video id. Used when `sameOnAllDisplays` is false.
     @Published var assignments: [String: String] {
         didSet { defaults.set(assignments, forKey: Key.assignments); broadcast() }
     }
-
-    // MARK: Init
 
     private init() {
         let d = UserDefaults.standard
@@ -140,10 +118,6 @@ final class Preferences: ObservableObject {
         assignments       = d.dictionary(forKey: Key.assignments) as? [String: String] ?? [:]
     }
 
-    // MARK: Helpers
-
-    /// The video id that should play on a given display, honouring the
-    /// "same everywhere" switch and falling back to the global choice.
     func videoID(forDisplay key: String) -> String? {
         if sameOnAllDisplays { return globalVideoID }
         return assignments[key] ?? globalVideoID
@@ -155,13 +129,11 @@ final class Preferences: ObservableObject {
         assignments = copy
     }
 
-    /// Set everywhere: updates the global choice and clears per-display overrides.
     func setVideoEverywhere(_ id: String?) {
         globalVideoID = id
         assignments = [:]
     }
 
-    /// Remove a video that no longer exists from every assignment slot.
     func forgetVideo(id: String) {
         if globalVideoID == id { globalVideoID = nil }
         assignments = assignments.filter { $0.value != id }

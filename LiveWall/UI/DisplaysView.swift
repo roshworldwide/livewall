@@ -1,21 +1,11 @@
-//
-//  DisplaysView.swift
-//  LiveWall
-//
-//  Per-display wallpaper assignment. Rebuilds itself whenever monitors are
-//  plugged, unplugged or rearranged.
-//
-
 import SwiftUI
 import AppKit
-
-// MARK: - Screen list that stays current
 
 @MainActor
 final class ScreenObserver: ObservableObject {
 
     struct Entry: Identifiable, Hashable {
-        let id: String        // engine display key
+        let id: String
         let name: String
         let width: Int
         let height: Int
@@ -53,8 +43,6 @@ final class ScreenObserver: ObservableObject {
         }
     }
 }
-
-// MARK: - View
 
 struct DisplaysView: View {
 
@@ -98,8 +86,6 @@ struct DisplaysView: View {
     }
 }
 
-// MARK: - One display
-
 struct DisplayRow: View {
 
     let screen: ScreenObserver.Entry
@@ -113,7 +99,6 @@ struct DisplayRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
 
-            // Preview
             Group {
                 if let assigned {
                     ThumbnailImage(video: assigned, cornerRadius: 6)
@@ -184,8 +169,6 @@ struct DisplayRow: View {
                     in: RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
-
-// MARK: - Shared placeholder
 
 struct ContentPlaceholder: View {
     let symbol: String

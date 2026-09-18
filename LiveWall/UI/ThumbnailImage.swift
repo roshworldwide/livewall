@@ -1,11 +1,3 @@
-//
-//  ThumbnailImage.swift
-//  LiveWall
-//
-//  Disk-backed poster frames with a tiny in-memory cache so scrolling the
-//  library grid doesn't re-decode JPEGs on every pass.
-//
-
 import SwiftUI
 import AppKit
 

@@ -1,18 +1,4 @@
 #!/bin/bash
-#
-#  Scripts/build.sh — compile LiveWall and package a DMG.
-#
-#  Used by CI and by "Build LiveWall.command". Non-interactive; exits non-zero
-#  on any failure so it can gate a workflow.
-#
-#  Usage:
-#      Scripts/build.sh              # build + package
-#      Scripts/build.sh --no-dmg     # build only
-#      Scripts/build.sh --reveal     # build + package, then open Finder
-#
-#  Environment:
-#      CONFIGURATION   Release (default) | Debug
-#
 
 set -euo pipefail
 
@@ -38,7 +24,6 @@ done
 step() { printf '\n\033[1m── %s\033[0m\n' "$1"; }
 die()  { printf '\n\033[31mERROR: %s\033[0m\n' "$1" >&2; exit 1; }
 
-# ─────────────────────────────────────────────────────────── preflight
 step "Preflight"
 
 [ "$(uname -s)" = "Darwin" ] || die "LiveWall is a macOS app — this only builds on macOS."
@@ -62,13 +47,11 @@ echo "Xcode:  $(xcodebuild -version | head -1)"
 echo "Config: $CONFIGURATION"
 [ -d "$PROJECT" ] || die "LiveWall.xcodeproj not found in $ROOT"
 
-# ─────────────────────────────────────────────────────────── build
 step "Compiling"
 
 rm -rf "$DERIVED" "$DIST"
 mkdir -p "$DIST"
 
-# Ad-hoc signing keeps this buildable with no Apple Developer account.
 xcodebuild \
     -project "$PROJECT" \
     -scheme "$SCHEME" \
@@ -98,7 +81,6 @@ if [ "$MAKE_DMG" -eq 0 ]; then
     exit 0
 fi
 
-# ─────────────────────────────────────────────────────────── package
 step "Packaging DMG"
 
 STAGE="$DIST/stage"
@@ -109,7 +91,6 @@ mkdir -p "$STAGE"
 cp -R "$APP" "$STAGE/LiveWall.app"
 ln -s /Applications "$STAGE/Applications"
 
-# Custom volume icon, lifted straight from the compiled app bundle.
 ICNS="$(/usr/bin/find "$APP/Contents/Resources" -maxdepth 1 -name '*.icns' 2>/dev/null | head -1)"
 if [ -n "$ICNS" ]; then
     cp "$ICNS" "$STAGE/.VolumeIcon.icns"

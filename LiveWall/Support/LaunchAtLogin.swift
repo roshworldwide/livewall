@@ -1,14 +1,3 @@
-//
-//  LaunchAtLogin.swift
-//  LiveWall
-//
-//  Thin wrapper around SMAppService (macOS 13+).
-//
-//  Note: login-item registration only works for a signed app located in a
-//  stable place. If you run straight out of Xcode's DerivedData, macOS may
-//  refuse to register it — move LiveWall.app to /Applications first.
-//
-
 import Foundation
 import ServiceManagement
 
@@ -18,7 +7,6 @@ enum LaunchAtLogin {
         SMAppService.mainApp.status == .enabled
     }
 
-    /// Returns nil on success, or a human-readable reason on failure.
     @discardableResult
     static func set(_ enabled: Bool) -> String? {
         do {

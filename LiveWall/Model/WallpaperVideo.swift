@@ -1,8 +1,3 @@
-//
-//  WallpaperVideo.swift
-//  LiveWall
-//
-
 import Foundation
 import AppKit
 
@@ -11,13 +6,10 @@ struct WallpaperVideo: Identifiable, Codable, Hashable {
     let id: String
     var name: String
 
-    /// Absolute path at import time. Used as a fallback if the bookmark fails.
     var path: String
 
-    /// Lets the file survive being moved or renamed after import.
     var bookmark: Data?
 
-    /// True when the file was copied into ~/Library/Application Support/LiveWall/Videos.
     var isInLibrary: Bool
 
     var thumbnailFile: String?
@@ -51,9 +43,6 @@ struct WallpaperVideo: Identifiable, Codable, Hashable {
         self.dateAdded = dateAdded
     }
 
-    // MARK: - File access
-
-    /// Resolves the bookmark first so moved/renamed files keep working.
     func resolvedURL() -> URL? {
         if let data = bookmark {
             var stale = false
@@ -75,8 +64,6 @@ struct WallpaperVideo: Identifiable, Codable, Hashable {
         guard let thumbnailFile else { return nil }
         return LibraryPaths.thumbnailsDirectory.appendingPathComponent(thumbnailFile)
     }
-
-    // MARK: - Display helpers
 
     var resolutionLabel: String {
         guard pixelWidth > 0, pixelHeight > 0 else { return "—" }

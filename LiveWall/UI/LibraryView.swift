@@ -1,8 +1,3 @@
-//
-//  LibraryView.swift
-//  LiveWall
-//
-
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -43,8 +38,6 @@ struct LibraryView: View {
         }
     }
 
-    // MARK: Grid
-
     private var grid: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: 16) {
@@ -80,8 +73,6 @@ struct LibraryView: View {
         return prefs.globalVideoID == video.id || prefs.assignments.values.contains(video.id)
     }
 
-    // MARK: Drop
-
     private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
         let group = DispatchGroup()
         var urls: [URL] = []
@@ -108,8 +99,6 @@ struct LibraryView: View {
         return true
     }
 }
-
-// MARK: - Card
 
 struct VideoCard: View {
 
@@ -203,8 +192,6 @@ struct VideoCard: View {
     }
 }
 
-// MARK: - Empty state
-
 struct EmptyLibraryView: View {
 
     let isDropTargeted: Bool
@@ -235,8 +222,6 @@ struct EmptyLibraryView: View {
         .padding(40)
     }
 }
-
-// MARK: - Rename sheet
 
 struct RenameSheet: View {
 

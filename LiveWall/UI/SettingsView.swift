@@ -1,8 +1,3 @@
-//
-//  SettingsView.swift
-//  LiveWall
-//
-
 import SwiftUI
 import AppKit
 
@@ -175,8 +170,6 @@ struct SettingsView: View {
             diskUsage = LibraryPaths.diskUsage()
         }
     }
-
-    // MARK: Helpers
 
     @ViewBuilder
     private func section<Content: View>(_ title: String,

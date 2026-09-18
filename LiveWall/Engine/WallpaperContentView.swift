@@ -1,11 +1,3 @@
-//
-//  WallpaperContentView.swift
-//  LiveWall
-//
-//  Layer-backed host for an AVPlayerLayer. Kept deliberately dumb: the engine
-//  owns the player, this view only owns geometry and scale.
-//
-
 import AppKit
 import AVFoundation
 
@@ -24,8 +16,6 @@ final class WallpaperContentView: NSView {
     }
 
     private func setup() {
-        // Layer-hosting view: assign the layer *before* wantsLayer, otherwise
-        // AppKit creates its own backing layer and replaces ours.
         let host = CALayer()
         host.backgroundColor = NSColor.black.cgColor
         host.masksToBounds = true
@@ -44,7 +34,6 @@ final class WallpaperContentView: NSView {
 
     override func layout() {
         super.layout()
-        // No implicit animation — the wallpaper should never "slide" into place.
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         playerLayer.frame = bounds
@@ -65,7 +54,6 @@ final class WallpaperContentView: NSView {
         CATransaction.commit()
     }
 
-    /// Soft fade used when swapping wallpapers so the change doesn't snap.
     func crossfade(duration: CFTimeInterval = 0.35) {
         let fade = CABasicAnimation(keyPath: "opacity")
         fade.fromValue = 0.0

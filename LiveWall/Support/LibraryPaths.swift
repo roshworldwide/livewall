@@ -1,11 +1,3 @@
-//
-//  LibraryPaths.swift
-//  LiveWall
-//
-//  All on-disk locations used by the app live under
-//  ~/Library/Application Support/LiveWall/
-//
-
 import Foundation
 import AppKit
 
@@ -17,12 +9,10 @@ enum LibraryPaths {
         return base.appendingPathComponent("LiveWall", isDirectory: true)
     }
 
-    /// Where imported copies live (only used when "Copy into library" is on).
     static var videosDirectory: URL {
         root.appendingPathComponent("Videos", isDirectory: true)
     }
 
-    /// Cached poster frames, one JPEG per library entry.
     static var thumbnailsDirectory: URL {
         root.appendingPathComponent("Thumbnails", isDirectory: true)
     }
@@ -43,7 +33,6 @@ enum LibraryPaths {
         NSWorkspace.shared.activateFileViewerSelecting([root])
     }
 
-    /// Total bytes occupied by copied videos + thumbnails.
     static func diskUsage() -> Int64 {
         let fm = FileManager.default
         var total: Int64 = 0

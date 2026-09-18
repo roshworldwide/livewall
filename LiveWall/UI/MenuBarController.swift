@@ -1,11 +1,3 @@
-//
-//  MenuBarController.swift
-//  LiveWall
-//
-//  The status-bar item is the primary way to drive the app day to day.
-//  The menu is rebuilt lazily each time it opens so it always reflects reality.
-//
-
 import AppKit
 
 @MainActor
@@ -33,13 +25,9 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         statusItem.menu = menu
     }
 
-    // MARK: - NSMenuDelegate
-
     func menuNeedsUpdate(_ menu: NSMenu) {
         rebuild(menu)
     }
-
-    // MARK: - Menu construction
 
     private func rebuild(_ menu: NSMenu) {
         menu.removeAllItems()
@@ -48,7 +36,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         let engine = WallpaperEngine.shared
         let library = LibraryStore.shared
 
-        // --- Header: what's playing -------------------------------------
         let current = engine.currentVideo
         let header = NSMenuItem(title: current?.name ?? "No wallpaper set",
                                 action: nil, keyEquivalent: "")
@@ -63,7 +50,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(header)
         menu.addItem(.separator())
 
-        // --- Transport ---------------------------------------------------
         let playPause = NSMenuItem(title: prefs.isPlaying ? "Pause" : "Play",
                                    action: #selector(togglePlayPause),
                                    keyEquivalent: "")
@@ -80,7 +66,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
                              accessibilityDescription: nil)
         menu.addItem(mute)
 
-        // Inline volume slider
         let volumeItem = NSMenuItem()
         let slider = VolumeSliderView(value: prefs.volume) { newValue in
             Preferences.shared.volume = newValue
@@ -93,7 +78,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
         menu.addItem(.separator())
 
-        // --- Wallpaper picker --------------------------------------------
         let wallpaperItem = NSMenuItem(title: "Wallpaper", action: nil, keyEquivalent: "")
         wallpaperItem.image = NSImage(systemSymbolName: "photo.stack", accessibilityDescription: nil)
         let wallpaperMenu = NSMenu()
@@ -125,7 +109,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         wallpaperItem.submenu = wallpaperMenu
         menu.addItem(wallpaperItem)
 
-        // --- Per-display submenu (only when there is more than one) --------
         if NSScreen.screens.count > 1 {
             let displaysItem = NSMenuItem(title: "Displays", action: nil, keyEquivalent: "")
             displaysItem.image = NSImage(systemSymbolName: "display.2", accessibilityDescription: nil)
@@ -164,7 +147,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             menu.addItem(displaysItem)
         }
 
-        // --- Fit mode -----------------------------------------------------
         let fitItem = NSMenuItem(title: "Scaling", action: nil, keyEquivalent: "")
         fitItem.image = NSImage(systemSymbolName: "aspectratio", accessibilityDescription: nil)
         let fitMenu = NSMenu()
@@ -180,7 +162,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
         menu.addItem(.separator())
 
-        // --- Library actions ----------------------------------------------
         let add = NSMenuItem(title: "Add Video…", action: #selector(addVideo), keyEquivalent: "")
         add.target = self
         add.image = NSImage(systemSymbolName: "plus", accessibilityDescription: nil)
@@ -193,7 +174,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
         menu.addItem(.separator())
 
-        // --- Behaviour toggles ---------------------------------------------
         let pauseHidden = NSMenuItem(title: "Pause When Covered",
                                      action: #selector(togglePauseWhenHidden),
                                      keyEquivalent: "")
@@ -215,8 +195,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         quit.target = self
         menu.addItem(quit)
     }
-
-    // MARK: - Actions
 
     @objc private func togglePlayPause() { Preferences.shared.isPlaying.toggle() }
 
@@ -266,8 +244,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     @objc private func quit() { onQuit?() }
 
-    // MARK: - Helpers
-
     private func attributed(title: String, subtitle: String) -> NSAttributedString {
         let result = NSMutableAttributedString(
             string: title,
@@ -292,8 +268,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         alert.runModal()
     }
 }
-
-// MARK: - Volume slider menu item
 
 final class VolumeSliderView: NSView {
 

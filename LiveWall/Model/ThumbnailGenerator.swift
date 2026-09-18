@@ -1,8 +1,3 @@
-//
-//  ThumbnailGenerator.swift
-//  LiveWall
-//
-
 import Foundation
 import AVFoundation
 import AppKit
@@ -10,8 +5,6 @@ import CoreMedia
 
 enum ThumbnailGenerator {
 
-    /// Grabs a representative frame and writes it as a JPEG into the thumbnails folder.
-    /// Returns the file name (not the full path) on success.
     static func makeThumbnail(for url: URL,
                               id: String,
                               maxSize: CGSize = CGSize(width: 960, height: 540)) async -> String? {
@@ -22,11 +15,9 @@ enum ThumbnailGenerator {
         let generator = AVAssetImageGenerator(asset: asset)
         generator.appliesPreferredTrackTransform = true
         generator.maximumSize = maxSize
-        // Loose tolerance keeps 4K thumbnailing fast — we only need *a* frame.
         generator.requestedTimeToleranceBefore = CMTime(seconds: 1, preferredTimescale: 600)
         generator.requestedTimeToleranceAfter  = CMTime(seconds: 1, preferredTimescale: 600)
 
-        // Prefer a frame ~10% in; opening frames are often black fades.
         var target = CMTime(seconds: 1.0, preferredTimescale: 600)
         if let duration = try? await asset.load(.duration), duration.isNumeric {
             let seconds = CMTimeGetSeconds(duration)
@@ -54,14 +45,13 @@ enum ThumbnailGenerator {
         }
     }
 
-    /// Reads video metadata (duration + display-corrected pixel size).
     static func probe(url: URL) async -> (duration: Double, width: Int, height: Int)? {
         let asset = AVURLAsset(url: url, options: [
             AVURLAssetPreferPreciseDurationAndTimingKey: false
         ])
 
         guard let track = try? await asset.loadTracks(withMediaType: .video).first else {
-            return nil   // not a playable video (audio-only, DRM, unsupported codec, …)
+            return nil
         }
 
         var seconds: Double = 0

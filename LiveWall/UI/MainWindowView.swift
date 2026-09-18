@@ -1,11 +1,3 @@
-//
-//  MainWindowView.swift
-//  LiveWall
-//
-//  Header / content / status-bar layout. The header is drawn in SwiftUI rather
-//  than as an NSToolbar so it behaves predictably inside NSHostingController.
-//
-
 import SwiftUI
 
 enum MainTab: String, CaseIterable, Identifiable {
@@ -57,8 +49,6 @@ struct MainWindowView: View {
                message: { Text(library.lastError ?? "") })
     }
 
-    // MARK: Header
-
     private var header: some View {
         HStack(spacing: 12) {
             Picker("", selection: $tab) {
@@ -94,8 +84,6 @@ struct MainWindowView: View {
         }
     }
 }
-
-// MARK: - Bottom status bar
 
 struct StatusBar: View {
 

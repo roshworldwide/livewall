@@ -1,17 +1,6 @@
-//
-//  WallpaperEngine.swift
-//  LiveWall
-//
-//  Owns one desktop-level window + one AVQueuePlayer per physical display.
-//  AVPlayerLooper gives gapless looping; AVFoundation gives hardware-accelerated
-//  H.264/HEVC decode, which is what makes 4K playback cheap on Apple silicon.
-//
-
 import AppKit
 import AVFoundation
 import Combine
-
-// MARK: - Per-display output
 
 final class DisplayOutput {
     let key: String
@@ -30,28 +19,19 @@ final class DisplayOutput {
     }
 }
 
-// MARK: - Engine
-
 @MainActor
 final class WallpaperEngine: NSObject, ObservableObject {
 
     static let shared = WallpaperEngine()
 
-    /// key -> output, one per connected display.
     private(set) var outputs: [String: DisplayOutput] = [:]
 
-    /// Set while the system is asleep or the screen is locked.
     private var systemSuspended = false
 
     private var started = false
 
     private override init() { super.init() }
 
-    // MARK: - Display identity
-
-    /// Stable-enough identity for a screen: the human name plus the display id.
-    /// If a monitor is swapped and the key no longer matches, that display simply
-    /// falls back to the global wallpaper — never to a blank screen.
     static func key(for screen: NSScreen) -> String {
         let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber
         let displayID = number?.uint32Value ?? 0
@@ -59,8 +39,6 @@ final class WallpaperEngine: NSObject, ObservableObject {
     }
 
     static func displayName(for screen: NSScreen) -> String { screen.localizedName }
-
-    // MARK: - Lifecycle
 
     func start() {
         guard !started else { return }
@@ -110,8 +88,6 @@ final class WallpaperEngine: NSObject, ObservableObject {
                               name: NSWorkspace.screensDidWakeNotification, object: nil)
     }
 
-    // MARK: - Screen management
-
     @objc private func screenParametersChanged() {
         rebuildOutputs()
         syncFromPreferences()
@@ -133,7 +109,6 @@ final class WallpaperEngine: NSObject, ObservableObject {
             }
         }
 
-        // Tear down anything for a display that went away.
         for (key, output) in outputs where !liveKeys.contains(key) {
             output.looper?.disableLooping()
             output.player.pause()
@@ -151,7 +126,6 @@ final class WallpaperEngine: NSObject, ObservableObject {
         let player = AVQueuePlayer()
         player.actionAtItemEnd = .advance
         player.isMuted = true
-        // Local files: don't stall waiting for a buffer we already have.
         player.automaticallyWaitsToMinimizeStalling = false
         content.playerLayer.player = player
 
@@ -160,18 +134,14 @@ final class WallpaperEngine: NSObject, ObservableObject {
         return DisplayOutput(key: key, window: window, content: content, player: player)
     }
 
-    // MARK: - Preference sync
-
     @objc private func preferencesChanged() {
         syncFromPreferences()
     }
 
-    /// Reconciles every output with whatever Preferences currently says.
     func syncFromPreferences() {
         let prefs = Preferences.shared
         let library = LibraryStore.shared
 
-        // Audio only ever comes from the main display; N unmuted players is noise.
         let mainKey = NSScreen.main.map { Self.key(for: $0) }
 
         for (key, output) in outputs {
@@ -209,8 +179,6 @@ final class WallpaperEngine: NSObject, ObservableObject {
         let item = AVPlayerItem(asset: asset)
         item.preferredForwardBufferDuration = 4
 
-        // AVPlayerLooper enqueues copies of the template item so the loop point
-        // has no gap or black flash — much better than seeking on didPlayToEnd.
         output.looper = AVPlayerLooper(player: output.player, templateItem: item)
         output.videoID = video.id
         output.content.crossfade()
@@ -218,10 +186,6 @@ final class WallpaperEngine: NSObject, ObservableObject {
         updatePlayback(for: output)
     }
 
-    // MARK: - Playback gating
-
-    /// A display plays only when: the user wants playback, the system is awake,
-    /// and (if the setting is on) the desktop is not completely covered.
     private func updatePlayback(for output: DisplayOutput) {
         let prefs = Preferences.shared
         let hiddenBlocks = prefs.pauseWhenHidden && output.isCovered
@@ -248,12 +212,9 @@ final class WallpaperEngine: NSObject, ObservableObject {
 
     @objc private func systemDidWake() {
         systemSuspended = false
-        // Displays can be re-enumerated on wake; rebuild before resuming.
         rebuildOutputs()
         syncFromPreferences()
     }
-
-    // MARK: - Public controls (used by the menu bar and UI)
 
     func togglePlayPause() {
         Preferences.shared.isPlaying.toggle()
@@ -268,7 +229,6 @@ final class WallpaperEngine: NSObject, ObservableObject {
         Preferences.shared.setVideoID(video?.id, forDisplay: key)
     }
 
-    /// Currently-playing video on the main display, for menu-bar labels.
     var currentVideo: WallpaperVideo? {
         let key = NSScreen.main.map { Self.key(for: $0) }
         let id = key.flatMap { Preferences.shared.videoID(forDisplay: $0) }
@@ -276,7 +236,6 @@ final class WallpaperEngine: NSObject, ObservableObject {
         return LibraryStore.shared.video(withID: id)
     }
 
-    /// Rough health readout shown in Settings.
     var statusSummary: String {
         let count = outputs.count
         let playing = outputs.values.filter { $0.player.rate != 0 }.count

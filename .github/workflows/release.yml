@@ -1,11 +1,5 @@
 name: Release
 
-# Push a tag to cut a release:
-#     git tag v1.0.0 && git push origin v1.0.0
-#
-# This builds a fresh DMG on a clean macOS runner, generates the Aurora demo
-# wallpaper, and publishes both as release assets.
-
 on:
   push:
     tags: ['v*']
@@ -30,9 +24,6 @@ jobs:
       - name: Build and package
         run: bash Scripts/build.sh
 
-      # Nice-to-have, not load-bearing: the DMG is the actual release artifact.
-      # A slow or flaky Homebrew mirror must never block shipping, so this step
-      # is allowed to fail and the upload below tolerates the missing file.
       - name: Generate demo wallpaper
         continue-on-error: true
         timeout-minutes: 12
